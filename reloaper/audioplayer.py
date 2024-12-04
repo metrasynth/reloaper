@@ -7,7 +7,13 @@ import attrs
 import numpy as np
 import sounddevice
 
-from reloaper.pubsub import hub, Key
+from reloaper.pubsub import (
+    KeyPressed,
+    PlaybackAudioReplace,
+    PlaybackLoopUpdate,
+    PlaybackPlayheadSet,
+    hub,
+)
 
 log = logging.getLogger(__name__)
 
@@ -29,19 +35,19 @@ class AudioPlayer:
 
     def __attrs_post_init__(self):
         hub.add_subscriber(
-            Key("playback", "audio", "replace"),
+            PlaybackAudioReplace,
             self.handle_audio_replace,
         )
         hub.add_subscriber(
-            Key("playback", "loop", "update"),
+            PlaybackLoopUpdate,
             self.handle_loop_update,
         )
         hub.add_subscriber(
-            Key("playback", "playhead", "set"),
+            PlaybackPlayheadSet,
             self.handle_playhead_set,
         )
         hub.add_subscriber(
-            Key("key", "pressed", " "),
+            KeyPressed + [" "],
             self.handle_key_pressed_space,
         )
 

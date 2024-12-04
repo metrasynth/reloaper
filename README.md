@@ -48,6 +48,7 @@ uv run python -m reloaper --help
 - [x] When a change is detected (not currently rendering):
   - [x] Renders the audio for the song to a WAV in memory.
   - [x] Renders the time map for the song to memory.
+- [x] Option to watch a directory for changes to any `.sunvox` file and use it for the latest render.
 - [x] When a change is detected (currently rendering):
   - [x] Schedules a re-render to start after the current one finishes.
 - [x] When a song and time map are both rendered:

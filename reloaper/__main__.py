@@ -11,7 +11,7 @@ from reloaper.audioplayer import AudioPlayer
 from reloaper.hotkeys import keyboard_router
 from reloaper.loopmanager import LoopManager
 from reloaper.playbackmanager import PlaybackManager
-from reloaper.pubsub import hub, Key, message_logger
+from reloaper.pubsub import KeyPressed, hub, Key, message_logger
 from reloaper.songmapper import SongMapper
 from reloaper.songrenderer import SongRenderer
 from reloaper.songwatcher import SongWatcher
@@ -22,13 +22,17 @@ log = logging.getLogger(__name__)
 DEFAULT = "(default)"
 
 
-def entrypoint(song_path: Path, freq: int = 44100, output_device: Annotated[str | None, typer.Option()] = None):
+def entrypoint(
+    song_path: Path,
+    freq: int = 44100,
+    output_device: Annotated[str | None, typer.Option()] = None,
+):
     # disable_echo_for_process()
     song_path = song_path.resolve()
     init_logging()
     init_sunvox(freq=freq)
     init_hub_logging()
-    hub.add_subscriber(Key("key", "pressed", "q"), quitter)
+    hub.add_subscriber(KeyPressed + ["q"], quitter)
     asyncio.run(main(song_path=song_path, output_device=output_device))
 
 
@@ -64,11 +68,11 @@ def init_sunvox(*, freq: int):
 
 async def main(*, song_path: Path, output_device: str | None):
     song_watcher = SongWatcher(song_path=song_path)
-    song_mapper = SongMapper(song_path=song_path)
-    song_renderer = SongRenderer(song_path=song_path)
+    song_mapper = SongMapper()
+    song_renderer = SongRenderer()
     audio_player = AudioPlayer(interface_name=output_device)
-    playback_manager = PlaybackManager()
-    loop_manager = LoopManager()
+    _playback_manager = PlaybackManager()
+    _loop_manager = LoopManager()
     await asyncio.gather(
         song_watcher.watch(),
         song_mapper.render_loop(),

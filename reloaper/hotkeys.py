@@ -3,7 +3,7 @@ import asyncio
 from prompt_toolkit.input import create_input
 from prompt_toolkit.key_binding import KeyBindings, KeyPress
 
-from reloaper.pubsub import Key, hub
+from reloaper.pubsub import KeyPressed, hub
 
 
 bindings = KeyBindings()
@@ -16,7 +16,7 @@ async def keyboard_router():
     def keys_ready():
         key_press: KeyPress
         for key_press in input.read_keys():
-            hub.publish(Key("key", "pressed", key_press.key), ())
+            hub.publish(KeyPressed + [key_press.key], ())
 
     with input.raw_mode(), input.attach(keys_ready):
         await done.wait()

@@ -3,7 +3,13 @@ import logging
 import attrs
 import numpy as np
 
-from reloaper.pubsub import hub, Key
+from reloaper.pubsub import (
+    PlaybackAudioReplace,
+    PlaybackMapReplace,
+    SongAudioRendered,
+    SongMapRendered,
+    hub,
+)
 from reloaper.songmapper import SongMapSnapshot
 from reloaper.songrenderer import SongAudioSnapshot
 
@@ -19,11 +25,11 @@ class PlaybackManager:
 
     def __attrs_post_init__(self):
         hub.add_subscriber(
-            Key("song", "audio", "rendered"),
+            SongAudioRendered,
             self.handle_song_audio_rendered,
         )
         hub.add_subscriber(
-            Key("song", "map", "rendered"),
+            SongMapRendered,
             self.handle_song_map_rendered,
         )
 
@@ -43,11 +49,11 @@ class PlaybackManager:
 
     def update_playback(self):
         hub.publish(
-            Key("playback", "audio", "replace"),
+            PlaybackAudioReplace,
             self.latest_audio,
         )
         hub.publish(
-            Key("playback", "map", "replace"),
+            PlaybackMapReplace,
             SongMapSnapshot(
                 line_frame_map=self.latest_map,
                 timestamp=self.latest_map_timestamp,

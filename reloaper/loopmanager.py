@@ -5,7 +5,14 @@ import numpy as np
 from prompt_toolkit.keys import Keys
 
 from reloaper.audioplayer import PlaybackLoop, Playhead
-from reloaper.pubsub import hub, Key
+from reloaper.pubsub import (
+    KeyPressed,
+    PlaybackLoopUpdate,
+    PlaybackMapReplace,
+    PlaybackPlayheadSet,
+    SongLoopUpdate,
+    hub,
+)
 from reloaper.songmapper import SongMapSnapshot
 
 
@@ -22,23 +29,23 @@ class LoopManager:
 
     def __attrs_post_init__(self):
         hub.add_subscriber(
-            Key("key", "pressed", Keys.Up),
+            KeyPressed + [Keys.Up],
             self.on_key_up,
         )
         hub.add_subscriber(
-            Key("key", "pressed", Keys.Down),
+            KeyPressed + [Keys.Down],
             self.on_key_down,
         )
         hub.add_subscriber(
-            Key("key", "pressed", Keys.Left),
+            KeyPressed + [Keys.Left],
             self.on_key_left,
         )
         hub.add_subscriber(
-            Key("key", "pressed", Keys.Right),
+            KeyPressed + [Keys.Right],
             self.on_key_right,
         )
         hub.add_subscriber(
-            Key("playback", "map", "replace"),
+            PlaybackMapReplace,
             self.on_playback_map_replace,
         )
 
@@ -102,10 +109,10 @@ class LoopManager:
             length_lines=self.length_lines,
         )
         new_playback_loop = PlaybackLoop(start_frame=start_frame, end_frame=end_frame)
-        hub.publish(Key("playback", "loop", "update"), new_playback_loop)
-        hub.publish(Key("song", "loop", "update"), new_song_loop)
+        hub.publish(PlaybackLoopUpdate, new_playback_loop)
+        hub.publish(SongLoopUpdate, new_song_loop)
         if new_playback_loop != self.last_published_loop:
-            hub.publish(Key("playback", "playhead", "set"), Playhead(frame=start_frame))
+            hub.publish(PlaybackPlayheadSet, Playhead(frame=start_frame))
             self.last_published_loop = new_playback_loop
 
 
